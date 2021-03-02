@@ -4,6 +4,7 @@
 #include <vector>
 #include <string.h>
 #include <stdio.h>
+//#include <map>
 using namespace std;
 
 //#include "VMSim.h"
@@ -29,6 +30,10 @@ Page::Page(int a){
 void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
 
 int getVPN(unsigned addr);
+
+void fifo();
+void lru();
+void segmentedFifo();
 
 int main(int argc, char *argv[]){
     //declare our variables we wanna track ()
@@ -87,8 +92,11 @@ int main(int argc, char *argv[]){
         printResults(nFrames, eventsNum, totalR, totalW);*/
     }
     
+    //turn it on in a min
     vector<Page*> pageTable;
-    for (size_t i = 0; i < nFrames; i++)
+    vector<unsigned int> addressLookup;
+    //map<unsigned int, int> addressLookup;
+    /*for (size_t i = 0; i < nFrames; i++)
     {
         if(debug) {cout << "new page num: " << i << endl;}
         Page* newPage = new Page(i);
@@ -100,20 +108,46 @@ int main(int argc, char *argv[]){
 
             cout << "------------------------------"<< endl;
         }
-    }
-    
+    }*/
 
     FILE* fp;
     unsigned addr;
     char rw;
-    fp = fopen("bzip.trace", "r");
-    fscanf(fp,"%x %c", &addr, &rw);
-    cout << hex << addr << dec <<  " " << rw << endl;
-    cout << hex << getVPN(addr) << dec << endl;
-
+    fp = fopen(argv[1], "r");
     
-    
+    int lim = 0; //test for only 20 entries
+    while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){
+        if(debug){
+            //cout << addr << endl;
+            cout << hex << addr << dec <<  " " << rw << endl;
+            cout << hex << getVPN(addr) << dec << endl;
+        }
 
+        lim++;
+    }
+
+
+
+    /*
+    unsigned addr;
+    char rw;
+    //Open input.txt for reading
+    ifstream infile(traceFile);
+    if (!infile.is_open()){//test to see if the file is opened
+        if(debug){cout << "Couldn't open " << traceFile << " for reading!\n";}
+        exit(1);
+    }
+    //fp = fopen(traceFile, "r");
+    int lim = 0; 
+    string test;
+    while(infile >> addr >> rw && lim < 20){
+        //infile >> addr;
+        //infile >> rw;
+        cout << addr << endl;
+        //cout << hex << addr << dec <<  " " << rw << endl;
+        //cout << hex << getVPN(addr) << dec << endl;
+        lim++; //limit test.
+    }*/ 
 
 
 }
@@ -128,4 +162,14 @@ void printResults(const int& nFrames, const int& eventsNum, const int& totalR, c
     cout << "Events in trace: " << eventsNum << endl;
     cout << "total disk reads: " << totalR << endl;
     cout << "total disk writes: " << totalW << endl;
+}
+
+void fifo(){
+
+}
+void lru(){
+
+}
+void segmentedFifo(){
+
 }
