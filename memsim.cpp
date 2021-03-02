@@ -27,7 +27,7 @@ Page::Page(unsigned int a){
     this->dirtyFlag = false;
 }
 
-void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
+void printResults(const int& nFrames, const int& eventsNum);//, const int& totalR, const int& totalW);
 
 int getVPN(unsigned addr);
 
@@ -35,10 +35,13 @@ void lru();
 void fifo();
 void segmentedFifo();
 
+int totalW;
+int totalR;
+
 int main(int argc, char *argv[]){
     //declare our variables we wanna track ()
-    int totalW = 0;
-    int totalR = 0;
+    totalW = 0;
+    totalR = 0;
     int eventsNum = 0;
     
 
@@ -92,23 +95,8 @@ int main(int argc, char *argv[]){
         printResults(nFrames, eventsNum, totalR, totalW);*/
     }
     
-    //turn it on in a min
     vector<Page*> pageTable;
-    //vector<unsigned int> addressLookup;
     map<unsigned int, int> addressLookup;
-    /*for (size_t i = 0; i < nFrames; i++)
-    {
-        if(debug) {cout << "new page num: " << i << endl;}
-        Page* newPage = new Page(i);
-        pageTable.push_back(newPage);
-        if(debug) {
-            cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
-            cout << "Page's validBit: " << pageTable[i]->validBit << "\nPage previousAccess: " << pageTable[i]->previousAccess << endl;
-            cout << "Page dirtyFlag: " << pageTable[i]->dirtyFlag << endl;
-
-            cout << "------------------------------"<< endl;
-        }
-    }*/
 
     FILE* fp;
     unsigned addr;
@@ -119,7 +107,7 @@ int main(int argc, char *argv[]){
     int lim = 0; //test for only 20 entries
     while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){
         eventsNum++; //I think this is an event idk tho
-        (rw == 'R') ? totalR++ : totalW++; //record those totals for the final print
+        //(rw == 'R') ? totalR++ : totalW++; //record those totals for the final print
         unsigned int VPN = getVPN(addr); //get the virtual address number from the address then use that for page number.
         if(debug){
             cout << hex << addr << dec <<  " " << rw << endl;
@@ -131,6 +119,7 @@ int main(int argc, char *argv[]){
             if(pageTable.size() == nFrames){//see if the page table is already full
                 if(debug) {cout << "page full (this is where the algorithms come in)" << endl;}//test
                 
+                if(pageTable[addressLookup[VPN]]->dirtyFlag == true)
                 switch (algorithm){
                 case 0: //LRU 
                     lru();
@@ -148,8 +137,8 @@ int main(int argc, char *argv[]){
 
             }else{//if the page table is not full yet, create a new page for it.
                 if(debug) {cout << "new page num: " << i << endl;}
-                Page* newPage = new Page(VPN); //make a new page since the page table is empty
-                pageTable.push_back(newPage); //add new page to page table
+                Page* currPage = new Page(VPN); //make a new page since the page table is empty
+                pageTable.push_back(currPage); //add new page to page table
 
                 if(debug) {
                     cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
@@ -167,41 +156,23 @@ int main(int argc, char *argv[]){
                 if(debug) {cout << "Hit!\n------------------------------" << endl;}
             }else{
                 if(debug) {cout << "Miss!\n------------------------------" << endl;}
-                
+
             }
         }
         
-        
+        if(rw == 'W'){
+            pageTable[addressLookup[VPN]]->dirtyFlag = true;
+        }
         
         //if(lim % 10000 == 0){cout << lim << endl;}
         lim++;
     }
 
-
-
-    /*
-    unsigned addr;
-    char rw;
-    //Open input.txt for reading
-    ifstream infile(traceFile);
-    if (!infile.is_open()){//test to see if the file is opened
-        if(debug){cout << "Couldn't open " << traceFile << " for reading!\n";}
-        exit(1);
-    }
-    //fp = fopen(traceFile, "r");
-    int lim = 0; 
-    string test;
-    while(infile >> addr >> rw && lim < 20){
-        //infile >> addr;
-        //infile >> rw;
-        cout << addr << endl;
-        //cout << hex << addr << dec <<  " " << rw << endl;
-        //cout << hex << getVPN(addr) << dec << endl;
-        lim++; //limit test.
-    }*/ 
-
     if(debug) {cout << "\n------------------------------\n<Heres the results>" << endl;}//test
-    printResults(nFrames, eventsNum, totalR, totalW); //print 'em
+
+    //totalW = 111;
+    //totalR = 222;
+    printResults(nFrames, eventsNum);//, totalR, totalW); //print 'em
     return(0);
 }
 
@@ -210,7 +181,7 @@ int getVPN(unsigned int addr){
     return ret;
 }
 
-void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW){
+void printResults(const int& nFrames, const int& eventsNum){//, const int& totalR, const int& totalW){
     cout << "Total memory frames: " << nFrames << endl;
     cout << "Events in trace: " << eventsNum << endl;
     cout << "total disk reads: " << totalR << endl;
