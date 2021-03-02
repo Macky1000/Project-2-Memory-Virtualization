@@ -21,6 +21,10 @@ void printResults(){
     cout << "total disk reads: " << totalR << endl;
     cout << "total disk writes: " << totalW << endl;
 }
+int getVPN(unsigned addr){
+    int ret = addr/PAGESIZE;
+    return ret;
+}
 
 int main(int argc, char *argv[]){
     if (argc < 5 || argc > 6){
@@ -70,9 +74,16 @@ int main(int argc, char *argv[]){
         int totalR = 10;
         int eventsNum = 100;
         printResults();
+       
     }
     
-    
+    FILE* fp;
+        unsigned addr;
+        char rw;
+        fp = fopen("bzip.trace", "r");
+        fscanf(fp,"%x %c", &addr, &rw);
+        cout << hex << addr << dec <<  " " << rw << endl;
+        cout << hex << getVPN(addr) << dec << endl;
 
 }
 
