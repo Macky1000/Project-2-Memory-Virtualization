@@ -10,27 +10,17 @@ using namespace std;
 
 const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
-int totalW;
 /*int totalW;
 int totalR;
 int eventsNum;
-int nFrames;
 int nFrames;*/
 
-<<<<<<< Updated upstream
-void printResults(){
-    cout << "Total memory frames: " << nFrames << endl;
-    cout << "Events in trace: " << eventsNum << endl;
-    cout << "total disk reads: " << totalR << endl;
-    cout << "total disk writes: " << totalW << endl;
-}
+void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
+
 int getVPN(unsigned addr){
     int ret = addr/PAGESIZE;
     return ret;
 }
-=======
-void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
->>>>>>> Stashed changes
 
 int main(int argc, char *argv[]){
     //declare our variables we wanna track ()
@@ -81,23 +71,6 @@ int main(int argc, char *argv[]){
         if(i==5){cout << "\npercentage: " << percentage;}
         cout << "\ndebug: true (obviously)" << endl ;
 
-<<<<<<< Updated upstream
-        //test
-        int totalW = 1;
-        int totalR = 10;
-        int eventsNum = 100;
-        printResults();
-       
-    }
-    
-    FILE* fp;
-        unsigned addr;
-        char rw;
-        fp = fopen("bzip.trace", "r");
-        fscanf(fp,"%x %c", &addr, &rw);
-        cout << hex << addr << dec <<  " " << rw << endl;
-        cout << hex << getVPN(addr) << dec << endl;
-=======
         /*test
         totalW = 1;
         totalR = 10;
@@ -105,10 +78,15 @@ int main(int argc, char *argv[]){
         printResults(nFrames, eventsNum, totalR, totalW);*/
     }
     
-    //
+    FILE* fp;
+    unsigned addr;
+    char rw;
+    fp = fopen("bzip.trace", "r");
+    fscanf(fp,"%x %c", &addr, &rw);
+    cout << hex << addr << dec <<  " " << rw << endl;
+    cout << hex << getVPN(addr) << dec << endl;
 
 
->>>>>>> Stashed changes
 
 }
 
