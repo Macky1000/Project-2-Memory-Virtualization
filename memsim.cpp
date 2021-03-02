@@ -37,9 +37,9 @@ void segmentedFifo();
 
 int main(int argc, char *argv[]){
     //declare our variables we wanna track ()
-    int totalW;
-    int totalR;
-    int eventsNum;
+    int totalW = 0;
+    int totalR = 0;
+    int eventsNum = 0;
     
 
     if (argc < 5 || argc > 6){
@@ -118,14 +118,16 @@ int main(int argc, char *argv[]){
     i = 0;
     int lim = 0; //test for only 20 entries
     while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){
+        eventsNum++; //I think this is an event idk tho
+        (rw == 'R') ? totalR++ : totalW++; //record those totals for the final print
+        unsigned int VPN = getVPN(addr); //get the virtual address number from the address then use that for page number.
         if(debug){
-            
             cout << hex << addr << dec <<  " " << rw << endl;
-            cout << hex << getVPN(addr) << dec << endl;
-            cout << "VPN in decimal: " << getVPN(addr) << endl;
+            cout << hex << VPN << dec << endl;
+            cout << "VPN in decimal: " << VPN << endl;
         }
         
-        if(addressLookup.count(getVPN(addr)) != 1){//test to see if we have a page already added to the lookup (and thus, has been loaded in before)
+        if(addressLookup.count(VPN) != 1){//test to see if we have a page already added to the lookup (and thus, has been loaded in before)
             if(pageTable.size() == nFrames){//see if the page table is already full
                 if(debug) {cout << "page full (this is where the algorithms come in)" << endl;}//test
                 
@@ -143,10 +145,10 @@ int main(int argc, char *argv[]){
                     if(debug) {cout << "something very wrong happened with the chosen algorithm" << endl;}//test
                     break;
                 }
-                
+
             }else{//if the page table is not full yet, create a new page for it.
                 if(debug) {cout << "new page num: " << i << endl;}
-                Page* newPage = new Page(getVPN(addr)); //make a new page since the page table is empty
+                Page* newPage = new Page(VPN); //make a new page since the page table is empty
                 pageTable.push_back(newPage); //add new page to page table
 
                 if(debug) {
@@ -157,11 +159,16 @@ int main(int argc, char *argv[]){
                     cout << "------------------------------"<< endl;
                 }
                 
-                addressLookup.emplace(getVPN(addr),i);
+                addressLookup.emplace(VPN,i);
                 i++; //just keep track of the element we're putting in
             }
         }else{//look up in the page table where it is
-            if(debug) {cout << "already got that one\n------------------------------" << endl;}//test
+            if(pageTable[addressLookup[VPN]]->pgNum == VPN){//looks pretty complex but it isnt. Basically, take the VPN, go to the map to find what element it would be in the pageTable, go to given element in the page table and ask the page there what it's page number is. If the numbers match, we got a hit. 
+                if(debug) {cout << "Hit!\n------------------------------" << endl;}
+            }else{
+                if(debug) {cout << "Miss!\n------------------------------" << endl;}
+                
+            }
         }
         
         
@@ -193,10 +200,12 @@ int main(int argc, char *argv[]){
         lim++; //limit test.
     }*/ 
 
-
+    if(debug) {cout << "\n------------------------------\n<Heres the results>" << endl;}//test
+    printResults(nFrames, eventsNum, totalR, totalW); //print 'em
+    return(0);
 }
 
-int getVPN(unsigned addr){
+int getVPN(unsigned int addr){
     int ret = addr/PAGESIZE;
     return ret;
 }
