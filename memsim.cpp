@@ -7,14 +7,12 @@
 #include <map>
 using namespace std;
 
-//#include "VMSim.h"
-
 const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
 class Page{
 public:
-    unsigned int pgNum; //maybe not needed
-    //int validBit;
+    unsigned int pgNum;
+    //int validBit; //remove this
     int previousAccess;
     bool dirtyFlag;
     Page(unsigned int a);
@@ -45,13 +43,11 @@ int main(int argc, char *argv[]){
     int eventsNum = 0;
     
 
-    if (argc < 5 || argc > 6){
+    if (argc < 5 || argc > 6){//just in case we get too many arguments (doesn't stop them from being wrong tho)
         string arguments = (argc < 5) ? "few" : "many";
         cout << "too " << arguments << " arguments given. Please use the following format:\nmemsim <tracefile> <nframes> <lru|fifo|vms> <p>(only with vms) <debug|quiet>" << endl;
         exit(1);
     }
-
-    //VM* vm = new VM()
 
     string traceFile = argv[1]; //store the traceFile
 
@@ -95,17 +91,19 @@ int main(int argc, char *argv[]){
         printResults(nFrames, eventsNum, totalR, totalW);*/
     }
     
+    //for the page table
     vector<Page*> pageTable;
-    map<unsigned int, int> addressLookup;
+    map<unsigned int, int> addressLookup; //used so we can do random access for pageTable (rather than having to check every element in the vector)
 
+    //For opening the file
     FILE* fp;
     unsigned addr;
     char rw;
     fp = fopen(argv[1], "r");
     
     i = 0;
-    int lim = 0; //test for only 20 entries
-    while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){
+    int lim = 0; //test for only 20 entries. REMOVE BEFORE SUBMISSION 
+    while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){ //scan in the next trace
         eventsNum++; //I think this is an event idk tho
         //(rw == 'R') ? totalR++ : totalW++; //record those totals for the final print
         unsigned int VPN = getVPN(addr); //get the virtual address number from the address then use that for page number.
@@ -126,11 +124,12 @@ int main(int argc, char *argv[]){
                 case 1: //FIFO
                     fifo();
                     break;
-                case 2:
+                case 2: //Segmented FIFO
                     segmentedFifo();
                     break;
                 default:
                     if(debug) {cout << "something very wrong happened with the chosen algorithm" << endl;}//test
+                    return(1);
                     break;
                 }
 
@@ -138,6 +137,10 @@ int main(int argc, char *argv[]){
                 if(debug) {cout << "new page num: " << i << endl;}
                 Page* currPage = new Page(VPN); //make a new page since the page table is empty
                 pageTable.push_back(currPage); //add new page to page table
+                currPage->previousAccess = eventsNum;//set previousAccess as the current eventNum, basically keeping the time to track the oldest page.
+                /*if(rw = 'W'){//if the page has a write, then set it as dirty.
+                    currPage->dirtyFlag == true;
+                }*/
 
                 if(debug) {
                     cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
@@ -153,6 +156,10 @@ int main(int argc, char *argv[]){
         }else{//look up in the page table where it is
             if(pageTable[addressLookup[VPN]]->pgNum == VPN){//looks pretty complex but it isnt. Basically, take the VPN, go to the map to find what element it would be in the pageTable, go to given element in the page table and ask the page there what it's page number is. If the numbers match, we got a hit. 
                 if(debug) {cout << "Hit!\n------------------------------" << endl;}
+                pageTable[addressLookup[VPN]]->previousAccess = eventsNum;//set previousAccess as the current eventNum, basically keeping the time.
+                if(rw = 'W'){//if the page has a write, then set it as dirty.
+                    pageTable[addressLookup[VPN]]->dirtyFlag == true;
+                }
             }else{
                 if(debug) {cout << "Miss!\n------------------------------" << endl;}
 
@@ -166,22 +173,23 @@ int main(int argc, char *argv[]){
                 case 1: //FIFO
                     fifo();
                     break;
-                case 2:
+                case 2: //Segmented FIFO
                     segmentedFifo();
                     break;
                 default:
                     if(debug) {cout << "something very wrong happened with the chosen algorithm" << endl;}//test
+                    return(1);
                     break;
                 }
             }
         }
         
-        if(rw == 'W'){
-            pageTable[addressLookup[VPN]]->dirtyFlag = true;
+        if(rw == 'W'){//if the page has a write, then set it as dirty.
+            pageTable[addressLookup[VPN]]->dirtyFlag = true; //should update the latest used page (and thus the one just from the trace)  
         }
         
-        //if(lim % 10000 == 0){cout << lim << endl;}
-        lim++;
+        //if(lim % 10000 == 0){cout << lim << endl;} //used to test each n'th page. 
+        lim++;//get rid of all refrences to lim before turning in.
     }
 
     if(debug) {cout << "\n------------------------------\n<Heres the results>" << endl;}//test
@@ -192,12 +200,14 @@ int main(int argc, char *argv[]){
     return(0);
 }
 
+//used to get the Virtual Page Number (VPN)
 int getVPN(unsigned int addr){
     int ret = addr/PAGESIZE;
     return ret;
 }
 
-void printResults(const int& nFrames, const int& eventsNum){//, const int& totalR, const int& totalW){
+//used to print everything at the end
+void printResults(const int& nFrames, const int& eventsNum){
     cout << "Total memory frames: " << nFrames << endl;
     cout << "Events in trace: " << eventsNum << endl;
     cout << "total disk reads: " << totalR << endl;
