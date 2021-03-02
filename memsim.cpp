@@ -12,16 +12,16 @@ const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
 class Page{
 public:
-    int pgNum;
+    int pgNum; //maybe not needed
     int validBit;
     int previousAccess;
     bool dirtyFlag;
-    Page(int a, int b);
+    Page(int a);
 };
 
-Page::Page(int a, int b){
+Page::Page(int a){
     this->pgNum = a;
-    this->validBit = b;
+    this->validBit = 0;
     this->previousAccess = 0;
     this->dirtyFlag = false;
 }
@@ -87,6 +87,22 @@ int main(int argc, char *argv[]){
         printResults(nFrames, eventsNum, totalR, totalW);*/
     }
     
+    vector<Page*> pageTable;
+    for (size_t i = 0; i < nFrames; i++)
+    {
+        if(debug) {cout << "new page num: " << i << endl;}
+        Page* newPage = new Page(i);
+        pageTable.push_back(newPage);
+        if(debug) {
+            cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
+            cout << "Page's validBit: " << pageTable[i]->validBit << "\nPage previousAccess: " << pageTable[i]->previousAccess << endl;
+            cout << "Page dirtyFlag: " << pageTable[i]->dirtyFlag << endl;
+
+            cout << "------------------------------"<< endl;
+        }
+    }
+    
+
     FILE* fp;
     unsigned addr;
     char rw;
@@ -95,7 +111,8 @@ int main(int argc, char *argv[]){
     cout << hex << addr << dec <<  " " << rw << endl;
     cout << hex << getVPN(addr) << dec << endl;
 
-    vector<Page*> pageTable;
+    
+    
 
 
 
