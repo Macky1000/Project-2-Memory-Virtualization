@@ -70,6 +70,7 @@ int main(int argc, char *argv[]){
         }
         if(i==5){cout << "\npercentage: " << percentage;}
         cout << "\ndebug: true (obviously)" << endl ;
+        cout << "------------------------------\n"<< endl;
 
         /*test
         totalW = 1;
