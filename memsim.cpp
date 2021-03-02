@@ -4,7 +4,7 @@
 #include <vector>
 #include <string.h>
 #include <stdio.h>
-//#include <map>
+#include <map>
 using namespace std;
 
 //#include "VMSim.h"
@@ -13,14 +13,14 @@ const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
 class Page{
 public:
-    int pgNum; //maybe not needed
+    unsigned int pgNum; //maybe not needed
     int validBit;
     int previousAccess;
     bool dirtyFlag;
-    Page(int a);
+    Page(unsigned int a);
 };
 
-Page::Page(int a){
+Page::Page(unsigned int a){
     this->pgNum = a;
     this->validBit = 0;
     this->previousAccess = 0;
@@ -31,8 +31,8 @@ void printResults(const int& nFrames, const int& eventsNum, const int& totalR, c
 
 int getVPN(unsigned addr);
 
-void fifo();
 void lru();
+void fifo();
 void segmentedFifo();
 
 int main(int argc, char *argv[]){
@@ -94,8 +94,8 @@ int main(int argc, char *argv[]){
     
     //turn it on in a min
     vector<Page*> pageTable;
-    vector<unsigned int> addressLookup;
-    //map<unsigned int, int> addressLookup;
+    //vector<unsigned int> addressLookup;
+    map<unsigned int, int> addressLookup;
     /*for (size_t i = 0; i < nFrames; i++)
     {
         if(debug) {cout << "new page num: " << i << endl;}
@@ -115,14 +115,58 @@ int main(int argc, char *argv[]){
     char rw;
     fp = fopen(argv[1], "r");
     
+    i = 0;
     int lim = 0; //test for only 20 entries
     while (fscanf(fp,"%x %c", &addr, &rw) != EOF && lim < 20){
         if(debug){
-            //cout << addr << endl;
+            
             cout << hex << addr << dec <<  " " << rw << endl;
             cout << hex << getVPN(addr) << dec << endl;
+            cout << "VPN in decimal: " << getVPN(addr) << endl;
         }
+        
+        if(addressLookup.count(getVPN(addr)) != 1){//test to see if we have a page already added to the lookup (and thus, has been loaded in before)
+            if(pageTable.size() == nFrames){//see if the page table is already full
+                if(debug) {cout << "page full (this is where the algorithms come in)" << endl;}//test
+                
+                switch (algorithm){
+                case 0: //LRU 
+                    lru();
+                    break;
+                case 1: //FIFO
+                    fifo();
+                    break;
+                case 2:
+                    segmentedFifo();
+                    break;
+                default:
+                    if(debug) {cout << "something very wrong happened with the chosen algorithm" << endl;}//test
+                    break;
+                }
+                
+            }else{//if the page table is not full yet, create a new page for it.
+                if(debug) {cout << "new page num: " << i << endl;}
+                Page* newPage = new Page(getVPN(addr)); //make a new page since the page table is empty
+                pageTable.push_back(newPage); //add new page to page table
 
+                if(debug) {
+                    cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
+                    cout << "Page's validBit: " << pageTable[i]->validBit << "\nPage previousAccess: " << pageTable[i]->previousAccess << endl;
+                    cout << "Page dirtyFlag: " << pageTable[i]->dirtyFlag << endl;
+
+                    cout << "------------------------------"<< endl;
+                }
+                
+                addressLookup.emplace(getVPN(addr),i);
+                i++; //just keep track of the element we're putting in
+            }
+        }else{//look up in the page table where it is
+            if(debug) {cout << "already got that one\n------------------------------" << endl;}//test
+        }
+        
+        
+        
+        //if(lim % 10000 == 0){cout << lim << endl;}
         lim++;
     }
 
@@ -164,12 +208,13 @@ void printResults(const int& nFrames, const int& eventsNum, const int& totalR, c
     cout << "total disk writes: " << totalW << endl;
 }
 
-void fifo(){
 
-}
 void lru(){
-
+    return;
+}
+void fifo(){
+    return;
 }
 void segmentedFifo(){
-
+    return;
 }
