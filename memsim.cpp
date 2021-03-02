@@ -11,10 +11,13 @@ using namespace std;
 const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
 int totalW;
+/*int totalW;
 int totalR;
 int eventsNum;
 int nFrames;
+int nFrames;*/
 
+<<<<<<< Updated upstream
 void printResults(){
     cout << "Total memory frames: " << nFrames << endl;
     cout << "Events in trace: " << eventsNum << endl;
@@ -25,8 +28,17 @@ int getVPN(unsigned addr){
     int ret = addr/PAGESIZE;
     return ret;
 }
+=======
+void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
+>>>>>>> Stashed changes
 
 int main(int argc, char *argv[]){
+    //declare our variables we wanna track ()
+    int totalW;
+    int totalR;
+    int eventsNum;
+    
+
     if (argc < 5 || argc > 6){
         string arguments = (argc < 5) ? "few" : "many";
         cout << "too " << arguments << " arguments given. Please use the following format:\nmemsim <tracefile> <nframes> <lru|fifo|vms> <p>(only with vms) <debug|quiet>" << endl;
@@ -69,6 +81,7 @@ int main(int argc, char *argv[]){
         if(i==5){cout << "\npercentage: " << percentage;}
         cout << "\ndebug: true (obviously)" << endl ;
 
+<<<<<<< Updated upstream
         //test
         int totalW = 1;
         int totalR = 10;
@@ -84,6 +97,24 @@ int main(int argc, char *argv[]){
         fscanf(fp,"%x %c", &addr, &rw);
         cout << hex << addr << dec <<  " " << rw << endl;
         cout << hex << getVPN(addr) << dec << endl;
+=======
+        /*test
+        totalW = 1;
+        totalR = 10;
+        eventsNum = 100;
+        printResults(nFrames, eventsNum, totalR, totalW);*/
+    }
+    
+    //
+
+
+>>>>>>> Stashed changes
 
 }
 
+void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW){
+    cout << "Total memory frames: " << nFrames << endl;
+    cout << "Events in trace: " << eventsNum << endl;
+    cout << "total disk reads: " << totalR << endl;
+    cout << "total disk writes: " << totalW << endl;
+}
