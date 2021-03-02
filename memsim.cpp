@@ -14,7 +14,7 @@ const int PAGESIZE = 4096; //4 KB (4096 bytes)
 class Page{
 public:
     unsigned int pgNum; //maybe not needed
-    int validBit;
+    //int validBit;
     int previousAccess;
     bool dirtyFlag;
     Page(unsigned int a);
@@ -22,7 +22,7 @@ public:
 
 Page::Page(unsigned int a){
     this->pgNum = a;
-    this->validBit = 0;
+    //this->validBit = 0;
     this->previousAccess = 0;
     this->dirtyFlag = false;
 }
@@ -119,7 +119,6 @@ int main(int argc, char *argv[]){
             if(pageTable.size() == nFrames){//see if the page table is already full
                 if(debug) {cout << "page full (this is where the algorithms come in)" << endl;}//test
                 
-                if(pageTable[addressLookup[VPN]]->dirtyFlag == true)
                 switch (algorithm){
                 case 0: //LRU 
                     lru();
@@ -142,7 +141,7 @@ int main(int argc, char *argv[]){
 
                 if(debug) {
                     cout << "PageTable element: " << i << "\nElement's page num: " << pageTable[i]->pgNum << endl;
-                    cout << "Page's validBit: " << pageTable[i]->validBit << "\nPage previousAccess: " << pageTable[i]->previousAccess << endl;
+                    cout << /*"Page's validBit: " << pageTable[i]->validBit <<*/ "Page previousAccess: " << pageTable[i]->previousAccess << endl;
                     cout << "Page dirtyFlag: " << pageTable[i]->dirtyFlag << endl;
 
                     cout << "------------------------------"<< endl;
@@ -157,6 +156,23 @@ int main(int argc, char *argv[]){
             }else{
                 if(debug) {cout << "Miss!\n------------------------------" << endl;}
 
+                /*if(pageTable[addressLookup[VPN]]->dirtyFlag == true){//if the page we're about to replace is dirty, then increment the total write counter.
+                    totalW++;
+                }*/
+                switch (algorithm){
+                case 0: //LRU 
+                    lru();
+                    break;
+                case 1: //FIFO
+                    fifo();
+                    break;
+                case 2:
+                    segmentedFifo();
+                    break;
+                default:
+                    if(debug) {cout << "something very wrong happened with the chosen algorithm" << endl;}//test
+                    break;
+                }
             }
         }
         
@@ -187,7 +203,6 @@ void printResults(const int& nFrames, const int& eventsNum){//, const int& total
     cout << "total disk reads: " << totalR << endl;
     cout << "total disk writes: " << totalW << endl;
 }
-
 
 void lru(){
     return;
