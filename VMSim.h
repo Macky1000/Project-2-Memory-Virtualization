@@ -38,10 +38,11 @@ void printResults();
 int algorithm;
 bool debug;
 int percentage;
+int nFrames;
 
 int totalR;
 int totalW;
 int eventsNum;
-int nFrames;
+
 
 #endif
