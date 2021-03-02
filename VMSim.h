@@ -4,9 +4,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <string.h>
 #include <stdio.h>
 using namespace std;
+
+
+//forget all about this stuff.
+
+
 
 /*class VM{
     private:
@@ -22,7 +28,7 @@ using namespace std;
 
 class Page{
     private:
-        
+        int pgNum;
     public:
 
 };
@@ -34,15 +40,18 @@ void segmentedFifo(); //rename to segmented-fifo()
 
 void printResults();
 
-//string traceFile;
-int algorithm;
-bool debug;
-int percentage;
-int nFrames;
+//page table
+vector<Page*> pageTable;
 
-int totalR;
-int totalW;
-int eventsNum;
+extern string traceFile;
+extern int algorithm;
+extern bool debug;
+extern int percentage;
+extern int nFrames;
+
+extern int totalR;
+extern int totalW;
+extern int eventsNum;
 
 
 #endif

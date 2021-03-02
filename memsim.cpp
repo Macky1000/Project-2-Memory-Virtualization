@@ -1,6 +1,26 @@
-#include "VMSim.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+using namespace std;
+
+//#include "VMSim.h"
 
 const int PAGESIZE = 4096; //4 KB (4096 bytes)
+
+int totalW;
+int totalR;
+int eventsNum;
+int nFrames;
+
+void printResults(){
+    cout << "Total memory frames: " << nFrames << endl;
+    cout << "Events in trace: " << eventsNum << endl;
+    cout << "total disk reads: " << totalR << endl;
+    cout << "total disk writes: " << totalW << endl;
+}
 
 int main(int argc, char *argv[]){
     if (argc < 5 || argc > 6){
@@ -11,11 +31,11 @@ int main(int argc, char *argv[]){
 
     //VM* vm = new VM()
 
-    string traceFile(argv[1]); //store the traceFile
+    string traceFile = argv[1]; //store the traceFile
 
-    nFrames = atoi(argv[2]); //store the number of frames
+    int nFrames = atoi(argv[2]); //store the number of frames
     
-    algorithm = 0; //set algorithm to 0(LRU) by default unless...
+    int algorithm = 0; //set algorithm to 0(LRU) by default unless...
     if(strcmp(argv[3], "fifo")  == 0){//...the argument given is FIFO thus setting algorithm to 1(FIFO) or...
         algorithm = 1;
     } else if(strcmp(argv[3], "vms") == 0){ //...the argument given is VMS thus setting algorithm to 2(VMS)
@@ -23,12 +43,12 @@ int main(int argc, char *argv[]){
     }
 
     int i = (algorithm == 2) ? 5 : 4; //see if the algorithm chosen was vms and if we need to shift this all to account for <p>
-    debug = false; //set debug to false unless...
+    bool debug = false; //set debug to false unless...
     if(strcmp(argv[i], "debug") == 0){ //...the argument is set to debug 
         debug = true;
     }
 
-    percentage = 100; //default percentage to 100
+    int percentage = 100; //default percentage to 100
     if(algorithm == 2){ //if we're using vms then record the percent
         percentage = atoi(argv[4]); //store percentage of the total program memory
     }
@@ -44,8 +64,15 @@ int main(int argc, char *argv[]){
         }
         if(i==5){cout << "\npercentage: " << percentage;}
         cout << "\ndebug: true (obviously)" << endl ;
+
+        //test
+        int totalW = 1;
+        int totalR = 10;
+        int eventsNum = 100;
+        printResults();
     }
     
     
 
 }
+
