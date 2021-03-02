@@ -10,17 +10,25 @@ using namespace std;
 
 const int PAGESIZE = 4096; //4 KB (4096 bytes)
 
-/*int totalW;
-int totalR;
-int eventsNum;
-int nFrames;*/
+class Page{
+public:
+    int pgNum;
+    int validBit;
+    int previousAccess;
+    bool dirtyFlag;
+    Page(int a, int b);
+};
+
+Page::Page(int a, int b){
+    this->pgNum = a;
+    this->validBit = b;
+    this->previousAccess = 0;
+    this->dirtyFlag = false;
+}
 
 void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW);
 
-int getVPN(unsigned addr){
-    int ret = addr/PAGESIZE;
-    return ret;
-}
+int getVPN(unsigned addr);
 
 int main(int argc, char *argv[]){
     //declare our variables we wanna track ()
@@ -87,8 +95,15 @@ int main(int argc, char *argv[]){
     cout << hex << addr << dec <<  " " << rw << endl;
     cout << hex << getVPN(addr) << dec << endl;
 
+    vector<Page*> pageTable;
 
 
+
+}
+
+int getVPN(unsigned addr){
+    int ret = addr/PAGESIZE;
+    return ret;
 }
 
 void printResults(const int& nFrames, const int& eventsNum, const int& totalR, const int& totalW){
